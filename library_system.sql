@@ -41,7 +41,9 @@ CREATE TABLE lib_transaction (
   trn_book_id varchar(10) NOT NULL,
   trn_issue_dt date NOT NULL,
   trn_receive_dt date NOT NULL,
-  PRIMARY KEY (trn_book_id)
+  PRIMARY KEY (trn_book_id),
+  FOREIGN KEY (trn_book_id) REFERENCES books(book_id),
+  FOREIGN KEY (trn_mem_id) REFERENCES lib_member(mem_id)
 );
 
 

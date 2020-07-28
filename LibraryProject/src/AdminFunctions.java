@@ -8,17 +8,16 @@ import java.util.Scanner;
 
 public class AdminFunctions {
 	
-	DatabaseConnection db=new DatabaseConnection();
-	Connection con;
-	Statement stmt, st1;
-	ResultSet rs, rs1;
+	private DatabaseConnection db=new DatabaseConnection();
+	private Connection conn;
+	private Statement stmt;
+	private ResultSet resSet, resSet1;
 	Scanner scan = new Scanner(System.in);
 	public AdminFunctions() {
 		// TODO Auto-generated constructor stub
 		db.startConnection();
-		con=db.con;
-		stmt=db.stmt;
-		st1=db.stmt;
+		conn=db.getConn();
+		stmt=db.getStmt();
 	}
 	
 	public int chooseOptions() {
@@ -37,7 +36,7 @@ public class AdminFunctions {
 			System.out.println("Enter book ID: ");
 			String bookId=scan.nextLine();
 			bookId=scan.nextLine();
-			System.out.println("Enter book namade: ");
+			System.out.println("Enter book name: ");
 			String bookName=scan.nextLine();
 			System.out.println("Enter book author: ");
 			String bookAuthor=scan.nextLine();
@@ -45,7 +44,7 @@ public class AdminFunctions {
 			
 			String query=" insert into books (book_id, book_title, book_author, book_status)" + " values (?, ?, ?, ?)"  ;
 			
-			PreparedStatement pre = con.prepareStatement(query);
+			PreparedStatement pre = conn.prepareStatement(query);
 			pre.setString(1, bookId);
 			pre.setString(2, bookName);
 			pre.setString(3, bookAuthor);
@@ -53,9 +52,9 @@ public class AdminFunctions {
 			
 			pre.execute();
 			
-			rs=stmt.executeQuery("select * from books");  
-			while(rs.next())  
-			System.out.println(rs.getString(1)+"         "+rs.getString(2)+"                   "+rs.getString(3)+"               "+rs.getString(4));
+			resSet=stmt.executeQuery("select * from books");  
+			while(resSet.next())  
+			System.out.println(resSet.getString(1)+"         "+resSet.getString(2)+"                   "+resSet.getString(3)+"               "+resSet.getString(4));
 			
 		}
 		catch(Exception e)
@@ -70,13 +69,13 @@ public class AdminFunctions {
 			String bookId = scan.next();
 			String query= "delete from books where book_id = ? ";
 			
-			PreparedStatement pre = con.prepareStatement(query);
+			PreparedStatement pre = conn.prepareStatement(query);
 			pre.setString(1, bookId);
 			
 			pre.execute();
-			rs=stmt.executeQuery("select * from books");  
-			while(rs.next())  
-			System.out.println(rs.getString(1)+"         "+rs.getString(2)+"                   "+rs.getString(3)+"               "+rs.getString(4));
+			resSet=stmt.executeQuery("select * from books");  
+			while(resSet.next())  
+			System.out.println(resSet.getString(1)+"         "+resSet.getString(2)+"                   "+resSet.getString(3)+"               "+resSet.getString(4));
 		
 		}
 		catch(Exception e)
@@ -100,11 +99,11 @@ public class AdminFunctions {
 				{
 					System.out.println("Enter new ID.");
 					String bookIdNew = scan.next();
-					rs=stmt.executeQuery("select * from books");  
+					resSet=stmt.executeQuery("select * from books");  
 					int temp1=0;
-					while(rs.next())  
+					while(resSet.next())  
 					{
-						if(bookIdNew.equals(rs.getString(1)))
+						if(bookIdNew.equals(resSet.getString(1)))
 						{
 							temp1=1;
 							System.out.println("This book ID already exists");
@@ -114,7 +113,7 @@ public class AdminFunctions {
 					if(temp1==0)
 					{
 						String query= "update books set book_id = ? where book_id = ? ";
-						PreparedStatement pre = con.prepareStatement(query);
+						PreparedStatement pre = conn.prepareStatement(query);
 						pre.setString(1, bookIdNew);
 						pre.setString(2, bookId);
 						
@@ -128,7 +127,7 @@ public class AdminFunctions {
 					String bookNameNew = scan.nextLine();
 					bookNameNew = scan.nextLine();
 					String query= "update books set book_title = ? where book_id = ? ";
-					PreparedStatement pre = con.prepareStatement(query);
+					PreparedStatement pre = conn.prepareStatement(query);
 					pre.setString(1, bookNameNew);
 					pre.setString(2, bookId);
 					
@@ -141,7 +140,7 @@ public class AdminFunctions {
 					String bookAuthorNew = scan.nextLine();
 					bookAuthorNew = scan.nextLine();
 					String query= "update books set book_author = ? where book_id = ? ";
-					PreparedStatement pre = con.prepareStatement(query);
+					PreparedStatement pre = conn.prepareStatement(query);
 					pre.setString(1, bookAuthorNew);
 					pre.setString(2, bookId);
 					
@@ -164,7 +163,7 @@ public class AdminFunctions {
 			System.out.println("Enter the new status Issued or Available");
 			String bookStatus = scan.next();
 			String query= "update books set book_status = ? where book_id = ? ";
-			PreparedStatement pre = con.prepareStatement(query);
+			PreparedStatement pre = conn.prepareStatement(query);
 			pre.setString(1, bookStatus);
 			pre.setString(2, bookId);
 			
@@ -183,31 +182,31 @@ public class AdminFunctions {
 			String studentId = scan.next();
 			int flag=0;
 			String query="select * from lib_transaction where trn_mem_id = ? ";
-			PreparedStatement pre = con.prepareStatement(query);
+			PreparedStatement pre = conn.prepareStatement(query);
 			pre.setString(1, studentId);
 			
-			rs1=pre.executeQuery();
+			resSet1=pre.executeQuery();
 			int i=1;
 			String[] arr = new String[50];
 			int cnt=0;
-			while(rs1.next())  
+			while(resSet1.next())  
 			{
-				arr[cnt]=rs1.getString(2);
+				arr[cnt]=resSet1.getString(2);
 				cnt=cnt+1;
 			}
 			if(cnt==0)
 				System.out.println("No books are issued to this particular student.");
 			else {
 				query="select * from books";
-				pre = con.prepareStatement(query);
+				pre = conn.prepareStatement(query);
 				
-				rs1=pre.executeQuery();
+				resSet1=pre.executeQuery();
 				int k=0;
-				while(rs1.next() && k<cnt) {
-					if(rs1.getString(1).equals(arr[k]))
+				while(resSet1.next() && k<cnt) {
+					if(resSet1.getString(1).equals(arr[k]))
 					{
 						k+=1;
-						System.out.println("Book "+i+": "+rs1.getString(1)+"   "+rs1.getString(2));
+						System.out.println("Book "+i+": "+resSet1.getString(1)+"   "+resSet1.getString(2));
 					}
 				}
 			}

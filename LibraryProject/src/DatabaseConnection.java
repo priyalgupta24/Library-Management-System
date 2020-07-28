@@ -5,21 +5,25 @@ import java.sql.Statement;
 
 public class DatabaseConnection {
 	
-	Connection con;
-	Statement stmt, st1;
-	ResultSet rs, rs1,rs2;
+	private Connection conn;
+	private Statement stmt;
 	public DatabaseConnection() {
 		// TODO Auto-generated constructor stub
 		
 	}
+	public Connection getConn() {
+		return conn;
+	}
+	public Statement getStmt() {
+		return stmt;
+	}
 	public void startConnection() {
 		try{  
 			Class.forName("com.mysql.jdbc.Driver");
-			con=DriverManager.getConnection(  
-			"jdbc:mysql://localhost:3306/library_system","root","pass");  
-			//here library_sytem is database name, "root" is username and "pass" is password  
-			stmt=con.createStatement();  
-			st1 = con.createStatement();
+			conn=DriverManager.getConnection(  
+			"jdbc:mysql://localhost:3306/library_system","root","Priyal*1998");  
+			//here library_sytem is database name, "root" is username and "Priyal*1998" is password  
+			stmt=conn.createStatement();  
 		}
 		catch(Exception e)
 		{ 
@@ -28,7 +32,7 @@ public class DatabaseConnection {
 	}
 	public void closeConnection() {
 		try {
-			con.close();
+			conn.close();
 		}
 		catch(Exception e) {
 			System.out.println(e);

@@ -6,31 +6,30 @@ import java.util.Scanner;
 
 public class UserFunctions {
 
-	DatabaseConnection db=new DatabaseConnection();
-	Connection con;
-	Statement stmt, st1;
-	ResultSet rs, rs1;
+	private DatabaseConnection db=new DatabaseConnection();
+	private Connection conn;
+	private Statement stmt;
+	private ResultSet resSet, resSet1;
 	Scanner scan = new Scanner(System.in);
 	public UserFunctions() {
-		// TODO Auto-generated constructor stub
+		// TODO Auto-generated connstructor stub
 		db.startConnection();
-		con=db.con;
-		stmt=db.stmt;
-		st1=db.stmt;
+		conn=db.getConn();
+		stmt=db.getStmt();
 	}
 	
 	public boolean userLogin(String studID) {
 		try {
-			rs=stmt.executeQuery("select * from lib_member");
+			resSet=stmt.executeQuery("select * from lib_member");
 			int flag=0;
-			while(rs.next())
+			while(resSet.next())
 			{
-				if(studID.equals(rs.getString(1)))
+				if(studID.equals(resSet.getString(1)))
 				{
 					flag=1;
 					System.out.println("Enter your password");
 					String studPassword=scan.next();
-					if(studPassword.equals(rs.getString(3)))
+					if(studPassword.equals(resSet.getString(3)))
 					{
 						flag=2;
 						return true;
@@ -70,13 +69,13 @@ public class UserFunctions {
 			System.out.println("Enter the ID of the desired book.");
 			String bookId = scan.next();
 			int tem=0;
-			rs=stmt.executeQuery("select * from books");
-			while(rs.next())
+			resSet=stmt.executeQuery("select * from books");
+			while(resSet.next())
 			{
-				if(bookId.equals(rs.getString(1)))
+				if(bookId.equals(resSet.getString(1)))
 				{
 					tem=1;
-					System.out.println(rs.getString(1)+"         "+rs.getString(2)+"         "+rs.getString(3)+"         "+rs.getString(4));
+					System.out.println(resSet.getString(1)+"         "+resSet.getString(2)+"         "+resSet.getString(3)+"         "+resSet.getString(4));
 					break;
 				}
 			}
@@ -92,7 +91,7 @@ public class UserFunctions {
 	public void issueBook(String studID) {
 		try {
 			String noOfBooks = "select * from lib_transaction where trn_mem_id = ?";
-			PreparedStatement noOfBooksQuery = con.prepareStatement(noOfBooks);
+			PreparedStatement noOfBooksQuery = conn.prepareStatement(noOfBooks);
 			
 			noOfBooksQuery.setString(1, studID);
 			ResultSet numBooks=noOfBooksQuery.executeQuery();
@@ -112,14 +111,14 @@ public class UserFunctions {
 				String bookId=scan.next();
 				
 				String query = "select * from books where book_id = ?";
-				PreparedStatement pre = con.prepareStatement(query);
+				PreparedStatement pre = conn.prepareStatement(query);
 				pre.setString(1, bookId);
-				ResultSet rs1 = pre.executeQuery();
+				ResultSet resSet1 = pre.executeQuery();
 				
 				String s1;
-				if(rs1.next())
+				if(resSet1.next())
 				{
-					String s2=rs1.getString(4);
+					String s2=resSet1.getString(4);
 					s1=s2.toLowerCase();
 		
 					if(s1.equals("issued"))
@@ -130,28 +129,28 @@ public class UserFunctions {
 					{
 						
 						String q= "SELECT DATE_ADD( ? , INTERVAL 15 DAY )";
-						PreparedStatement pre1 = con.prepareStatement(q);
+						PreparedStatement pre1 = conn.prepareStatement(q);
 						
-						rs=stmt.executeQuery("select curdate()");
+						resSet=stmt.executeQuery("select curdate()");
 						
-						if(rs.next())
-						pre1.setDate(1, rs.getDate(1));
-						ResultSet rs2 = pre1.executeQuery();
+						if(resSet.next())
+						pre1.setDate(1, resSet.getDate(1));
+						ResultSet resSet2 = pre1.executeQuery();
 						
 						String q1=" Insert into lib_transaction (trn_mem_id,trn_book_id,trn_issue_dt,trn_receive_dt)"+ "VALUES( ?,?,?,?)";
-						PreparedStatement pre2 = con.prepareStatement(q1);
+						PreparedStatement pre2 = conn.prepareStatement(q1);
 						pre2.setString(1, studID);
 						pre2.setString(2, bookId);
-//								if(rs.next())
-						pre2.setDate(3, rs.getDate(1));
-						if(rs2.next())
-						pre2.setDate(4, rs2.getDate(1));
+//								if(resSet.next())
+						pre2.setDate(3, resSet.getDate(1));
+						if(resSet2.next())
+						pre2.setDate(4, resSet2.getDate(1));
 						
 						pre2.execute();
 						System.out.println("Your book is issued");
 						
 						String q2= "update books set book_status = ? where book_id = ? ";
-						PreparedStatement pre3 = con.prepareStatement(q2);
+						PreparedStatement pre3 = conn.prepareStatement(q2);
 						pre3.setString(1, "Issued");
 						pre3.setString(2, bookId);
 					}
@@ -164,33 +163,33 @@ public class UserFunctions {
 	}
 	public void checkStatus(String studID) {
 		try {
-			rs1=stmt.executeQuery("select * from lib_transaction");
+			resSet1=stmt.executeQuery("select * from lib_transaction");
 			String query="select * from lib_transaction where trn_mem_id = ? ";
-			PreparedStatement pre = con.prepareStatement(query);
+			PreparedStatement pre = conn.prepareStatement(query);
 			pre.setString(1, studID);
 			
-			rs1=pre.executeQuery();
+			resSet1=pre.executeQuery();
 			int i=1;
 			String[] arr = new String[50];
 			int cnt=0;
-			while(rs1.next())  
+			while(resSet1.next())  
 			{
-				arr[cnt]=rs1.getString(2);
+				arr[cnt]=resSet1.getString(2);
 				cnt=cnt+1;
 			}
 			if(cnt==0)
 				System.out.println("No books are issued");
 			else {
 				query="select * from books";
-				pre = con.prepareStatement(query);
+				pre = conn.prepareStatement(query);
 				
-				rs1=pre.executeQuery();
+				resSet1=pre.executeQuery();
 				int k=0;
-				while(rs1.next() && k<cnt) {
-					if(rs1.getString(1).equals(arr[k]))
+				while(resSet1.next() && k<cnt) {
+					if(resSet1.getString(1).equals(arr[k]))
 					{
 						k+=1;
-						System.out.println("Book "+i+": "+rs1.getString(1)+"   "+rs1.getString(2));
+						System.out.println("Book "+i+": "+resSet1.getString(1)+"   "+resSet1.getString(2));
 					}
 				}
 			}
@@ -206,33 +205,33 @@ public class UserFunctions {
 			String bookID = scan.next();
 			
 			String q1 = "select * from lib_transaction where trn_book_id = ?";
-			PreparedStatement pre = con.prepareStatement(q1);
+			PreparedStatement pre = conn.prepareStatement(q1);
 			pre.setString(1, bookID);
 			
-			rs= pre.executeQuery();
-			if(rs.next())
+			resSet= pre.executeQuery();
+			if(resSet.next())
 			{
-				if(studID.equals(rs.getString(1)))
+				if(studID.equals(resSet.getString(1)))
 				{
-					ResultSet rs2=stmt.executeQuery("select curdate()");
+					ResultSet resSet2=stmt.executeQuery("select curdate()");
 					
 					String q2 = "SELECT DATEDIFF( ? , ? )";
-					PreparedStatement pre1 = con.prepareStatement(q2);
-					if(rs2.next())
-					pre1.setDate(1, rs2.getDate(1));
-					pre1.setDate(2, rs.getDate(4));
+					PreparedStatement pre1 = conn.prepareStatement(q2);
+					if(resSet2.next())
+					pre1.setDate(1, resSet2.getDate(1));
+					pre1.setDate(2, resSet.getDate(4));
 					
-					ResultSet rs1= pre1.executeQuery();
+					ResultSet resSet1= pre1.executeQuery();
 					
-					if(rs1.next())
+					if(resSet1.next())
 					{
-						int difference = rs1.getInt(1);
+						int difference = resSet1.getInt(1);
 						if(difference<=0)
 						{
 							System.out.println("No fine is applicable to you.");
 							System.out.println("Your book is successfully returned");
 							String q3 = "delete from lib_transaction where trn_book_id = ?";
-							PreparedStatement pre2 = con.prepareStatement(q3);
+							PreparedStatement pre2 = conn.prepareStatement(q3);
 							pre2.setString(1, bookID);
 							
 							
