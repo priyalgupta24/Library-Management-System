@@ -21,8 +21,8 @@ public class DatabaseConnection {
 		try{  
 			Class.forName("com.mysql.jdbc.Driver");
 			conn=DriverManager.getConnection(  
-			"jdbc:mysql://localhost:3306/library_system","root","Priyal*1998");  
-			//here library_sytem is database name, "root" is username and "Priyal*1998" is password  
+			"jdbc:mysql://localhost:3306/library_system","root","pass");  
+			//here library_sytem is database name, "root" is username and "pass" is password  
 			stmt=conn.createStatement();  
 		}
 		catch(Exception e)
